@@ -41,12 +41,26 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
     screen.fill((12, 20, 69))
+    #drawing sun
+    sun_x = random.randint(5, 50)
+    sun_y = random.randint(5, 10)
+    for i in range(15):
+        pygame.draw.circle(screen, (255, 15 * i, 0), (100, 200), 75 - (5 * i))
+    #drawing moon
+    moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
+    pygame.draw.circle(screen, (229, 228, 226), (450, 200), 75)
+    pygame.draw.circle(screen, (192, 192, 192), (450, 200), 65)
+    #trying to build moon craters within bounds of moon's inner circle
+    blob_x = random.randint(moon_x-moon_r + blob_radius, moon_x+moon_r-blob_radius)
+    blob_y = random.randint(moon_y-moon_r+blob_radius, moon_y+moon_r-blob_radius)
+    pygame.draw.circle(screen, (112, 128, 144), (blob_x, blob_y), blob_radius)
+
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-100, 350, 450, 350))
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-50, 350, 850, 450))
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(500, 350, 700, 600))
     pygame.draw.rect(screen, (97, 112, 77), pygame.Rect(0, 450, 960, 150))
     clock = pygame.time.Clock()
-    particle1 = ParticleStar()
+    particle1 = LayerBGStar()
 
     PARTICLE_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(PARTICLE_EVENT, 10)
