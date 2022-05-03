@@ -1,32 +1,5 @@
+from perlin_noise import PerlinNoise
 import pygame, sys, random
-import opensimplex
-
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 960
-
-
-class LayerHill:
-    def __init__(self):
-        pass
-
-    def draw(self, screen):
-        points1, points2, points3 = self.generate_points()
-        print(points1)
-        pygame.draw.lines(screen, (255, 255, 255), False, points1, width=1)
-        pygame.draw.lines(screen, (0, 0, 0), False, points2, width=1)
-        pygame.draw.lines(screen, (255, 255, 255), False, points3, width=1)
-
-    def generate_points(self):
-        points1 = []
-        points2 = []
-        points3 = []
-
-        for i in range(SCREEN_WIDTH):
-            points1.append([i, 520 + 250 * opensimplex.noise2(0.005 * i, 0)])
-            points2.append([i, 500 + 250 * opensimplex.noise2(0.005 * i, 0.02)])
-            points3.append([i, 480 + 250 * opensimplex.noise2(0.005 * i, 0.04)])
-
-        return points1, points2, points3
 
 
 class LayerBGStar:
@@ -68,34 +41,39 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
     screen.fill((12, 20, 69))
-    #drawing sun
-    sun_x = random.randint(5, 50)
-    sun_y = random.randint(5, 10)
-    for i in range(15):
-        pygame.draw.circle(screen, (255, 15 * i, 0), (100, 200), 75 - (5 * i))
-    #drawing moon
-    moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
-    pygame.draw.circle(screen, (229, 228, 226), (450, 200), 75)
-    pygame.draw.circle(screen, (192, 192, 192), (450, 200), 65)
-    #trying to build moon craters within bounds of moon's inner circle
-    blob_x = random.randint(moon_x-moon_r + blob_radius, moon_x+moon_r-blob_radius)
-    blob_y = random.randint(moon_y-moon_r+blob_radius, moon_y+moon_r-blob_radius)
-    pygame.draw.circle(screen, (112, 128, 144), (blob_x, blob_y), blob_radius)
+    # #drawing sun
+    # sun_x = random.randint(5, 50)
+    # sun_y = random.randint(5, 10)
+    # for i in range(15):
+    #     pygame.draw.circle(screen, (255, 15 * i, 0), (100, 200), 75 - (5 * i))
+    # #drawing moon
+    # moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
+    # pygame.draw.circle(screen, (229, 228, 226), (450, 200), 75)
+    # pygame.draw.circle(screen, (192, 192, 192), (450, 200), 65)
+    # #trying to build moon craters within bounds of moon's inner circle
+    # blob_x = random.randint(moon_x-moon_r + blob_radius, moon_x+moon_r-blob_radius)
+    # blob_y = random.randint(moon_y-moon_r+blob_radius, moon_y+moon_r-blob_radius)
+    # pygame.draw.circle(screen, (112, 128, 144), (blob_x, blob_y), blob_radius)
 
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-100, 350, 450, 350))
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-50, 350, 850, 450))
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(500, 350, 700, 600))
     pygame.draw.rect(screen, (97, 112, 77), pygame.Rect(0, 450, 960, 150))
-
-    # Seed simplex noise
-    opensimplex.seed(1234)
-
-    # Draw hill
-    hill = LayerHill()
-    hill.draw(screen)
-
     clock = pygame.time.Clock()
     particle1 = LayerBGStar()
+
+    #blinking star system
+    #array of coordinates of the center of each star
+    curr_stars = []
+    for j in range(20):
+        s_x, s_y, s_c = random.randint(0, 960), random.randint(0, 200), 255
+        curr_stars.append((s_x, s_y, s_c))
+        pygame.draw.circle(screen, (s_c, s_c, s_c), (s_x, s_y), 5)
+
+    PARTICLE_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(PARTICLE_EVENT, 10)
+
+    sunmoon = random.randint(0, 1)
 
     while True:
         for event in pygame.event.get():
@@ -103,5 +81,30 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
 
+            if event.type == PARTICLE_EVENT:
+                particle1.add_particles()
+
+        for s_i in range(len(curr_stars)):
+            s_x, s_y, s_c = curr_stars[s_i]
+            pygame.draw.circle(screen, (s_c - 15, s_c - 15, s_c - 15), (s_x, s_y), 5)
+            if s_c <= 80:
+                pygame.draw.circle(screen, (12, 20, 69), (s_x, s_y), 5)
+                curr_stars[s_i] = (random.randint(0, 960), random.randint(0, 200), 255)
+            else:
+                curr_stars[s_i] = (s_x, s_y, s_c - 15)
+        
+        #drawing sun
+        if sunmoon:
+            sun_x = random.randint(5, 50)
+            sun_y = random.randint(5, 10)
+            for i in range(15):
+                pygame.draw.circle(screen, (255, 15 * i, 0), (100, 100), 75 - (5 * i))
+        #drawing moon
+        else:
+            moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
+            pygame.draw.circle(screen, (229, 228, 226), (100, 100), 75)
+            pygame.draw.circle(screen, (192, 192, 192), (100, 100), 65)
+
+        particle1.emit()
         pygame.display.update()
         clock.tick(120)
