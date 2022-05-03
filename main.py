@@ -1,5 +1,32 @@
-from perlin_noise import PerlinNoise
 import pygame, sys, random
+import opensimplex
+
+SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 960
+
+
+class LayerHill:
+    def __init__(self):
+        pass
+
+    def draw(self, screen):
+        points1, points2, points3 = self.generate_points()
+        print(points1)
+        pygame.draw.lines(screen, (255, 255, 255), False, points1, width=1)
+        pygame.draw.lines(screen, (0, 0, 0), False, points2, width=1)
+        pygame.draw.lines(screen, (255, 255, 255), False, points3, width=1)
+
+    def generate_points(self):
+        points1 = []
+        points2 = []
+        points3 = []
+
+        for i in range(SCREEN_WIDTH):
+            points1.append([i, 520 + 250 * opensimplex.noise2(0.005 * i, 0)])
+            points2.append([i, 500 + 250 * opensimplex.noise2(0.005 * i, 0.02)])
+            points3.append([i, 480 + 250 * opensimplex.noise2(0.005 * i, 0.04)])
+
+        return points1, points2, points3
 
 
 class LayerBGStar:
@@ -59,11 +86,16 @@ if __name__ == "__main__":
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-50, 350, 850, 450))
     pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(500, 350, 700, 600))
     pygame.draw.rect(screen, (97, 112, 77), pygame.Rect(0, 450, 960, 150))
+
+    # Seed simplex noise
+    opensimplex.seed(1234)
+
+    # Draw hill
+    hill = LayerHill()
+    hill.draw(screen)
+
     clock = pygame.time.Clock()
     particle1 = LayerBGStar()
-
-    PARTICLE_EVENT = pygame.USEREVENT + 1
-    pygame.time.set_timer(PARTICLE_EVENT, 10)
 
     while True:
         for event in pygame.event.get():
@@ -71,9 +103,5 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
 
-            if event.type == PARTICLE_EVENT:
-                particle1.add_particles()
-
-        particle1.emit()
         pygame.display.update()
         clock.tick(120)
