@@ -36,11 +36,71 @@ class LayerBGStar:
         particle_copy = [particle for particle in self.particles if particle[3] > 0]
         self.particles = particle_copy
 
+class FlameParticle:
+    alpha_layer_qty = 2
+    alpha_glow_difference_constant = 2
+
+    def __init__(self, x=100, y=500, r=5):
+        self.x = x
+        self.y = y
+        self.r = r
+        self.original_r = r
+        self.alpha_layers = FlameParticle.alpha_layer_qty
+        self.alpha_glow = FlameParticle.alpha_glow_difference_constant
+        max_surf_size = 2 * self.r * self.alpha_layers * self.alpha_layers * self.alpha_glow
+        self.surf = pygame.Surface((max_surf_size, max_surf_size), pygame.SRCALPHA)
+        self.burn_rate = 0.1 * random.randint(1, 4)
+
+    def update(self):
+        self.y -= 7 - self.r
+        self.x += random.randint(-self.r, self.r)
+        self.original_r -= self.burn_rate
+        self.r = int(self.original_r)
+        if self.r <= 0:
+            self.r = 1
+
+    def draw(self):
+        max_surf_size = 2 * self.r * self.alpha_layers * self.alpha_layers * self.alpha_glow
+        self.surf = pygame.Surface((max_surf_size, max_surf_size), pygame.SRCALPHA)
+        for i in range(self.alpha_layers, -1, -1):
+            alpha = 255 - i * (255 // self.alpha_layers - 5)
+            if alpha <= 0:
+                alpha = 0
+            radius = self.r * i * i * self.alpha_glow
+            if self.r == 4 or self.r == 3:
+                r, g, b = (255, 0, 0)
+            elif self.r == 2:
+                r, g, b = (255, 150, 0)
+            else:
+                r, g, b = (50, 50, 50)
+            # r, g, b = (0, 0, 255)  # uncomment this to make the flame blue
+            color = (r, g, b, alpha)
+            pygame.draw.circle(self.surf, color, (self.surf.get_width() // 2, self.surf.get_height() // 2), radius)
+        screen.blit(self.surf, self.surf.get_rect(center=(self.x, self.y)))
+
+class Flame:
+    def __init__(self, x=100, y=500):
+        self.x = x
+        self.y = y
+        self.flame_intensity = 2
+        self.flame_particles = []
+        for i in range(self.flame_intensity * 25):
+            self.flame_particles.append(FlameParticle(self.x + random.randint(-5, 5), self.y, random.randint(1, 5)))
+
+    def draw_flame(self):
+        for i in self.flame_particles:
+            if i.original_r <= 0:
+                self.flame_particles.remove(i)
+                self.flame_particles.append(FlameParticle(self.x + random.randint(-5, 5), self.y, random.randint(1, 5)))
+                del i
+                continue
+            i.update()
+            i.draw()
+flame = Flame()
 
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
-    screen.fill((12, 20, 69))
     # #drawing sun
     # sun_x = random.randint(5, 50)
     # sun_y = random.randint(5, 10)
@@ -55,10 +115,7 @@ if __name__ == "__main__":
     # blob_y = random.randint(moon_y-moon_r+blob_radius, moon_y+moon_r-blob_radius)
     # pygame.draw.circle(screen, (112, 128, 144), (blob_x, blob_y), blob_radius)
 
-    pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-100, 350, 450, 350))
-    pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-50, 350, 850, 450))
-    pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(500, 350, 700, 600))
-    pygame.draw.rect(screen, (97, 112, 77), pygame.Rect(0, 450, 960, 150))
+
     clock = pygame.time.Clock()
     particle1 = LayerBGStar()
 
@@ -76,6 +133,11 @@ if __name__ == "__main__":
     sunmoon = random.randint(0, 1)
 
     while True:
+        screen.fill((12, 20, 69))
+        pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-100, 350, 450, 350))
+        pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(-50, 350, 850, 450))
+        pygame.draw.ellipse(screen, (85, 127, 70), pygame.Rect(500, 350, 700, 600))
+        pygame.draw.rect(screen, (97, 112, 77), pygame.Rect(0, 450, 960, 150))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -92,7 +154,7 @@ if __name__ == "__main__":
                 curr_stars[s_i] = (random.randint(0, 960), random.randint(0, 200), 255)
             else:
                 curr_stars[s_i] = (s_x, s_y, s_c - 15)
-        
+
         #drawing sun
         if sunmoon:
             sun_x = random.randint(5, 50)
@@ -104,6 +166,7 @@ if __name__ == "__main__":
             moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
             pygame.draw.circle(screen, (229, 228, 226), (100, 100), 75)
             pygame.draw.circle(screen, (192, 192, 192), (100, 100), 65)
+        flame.draw_flame()
 
         particle1.emit()
         pygame.display.update()
