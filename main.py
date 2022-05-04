@@ -36,68 +36,66 @@ class LayerBGStar:
         particle_copy = [particle for particle in self.particles if particle[3] > 0]
         self.particles = particle_copy
 
-class FlameParticle:
-    alpha_layer_qty = 2
-    alpha_glow_difference_constant = 2
+class FireParticle:
+    layers = 2
+    glow_difference = 2
 
     def __init__(self, x=100, y=500, r=5):
+        self.r = r
+        self.orig_radius = r
         self.x = x
         self.y = y
-        self.r = r
-        self.original_r = r
-        self.alpha_layers = FlameParticle.alpha_layer_qty
-        self.alpha_glow = FlameParticle.alpha_glow_difference_constant
-        max_surf_size = 2 * self.r * self.alpha_layers * self.alpha_layers * self.alpha_glow
-        self.surf = pygame.Surface((max_surf_size, max_surf_size), pygame.SRCALPHA)
-        self.burn_rate = 0.1 * random.randint(1, 4)
+        self.layers = FireParticle.layers
+        self.glow = FireParticle.glow_difference
+        self.surface = pygame.Surface((2 * self.r * self.layers ** 2 * self.glow, 2 * self.r * self.layers ** 2 * self.glow), pygame.SRCALPHA)
+        self.burn_rate = random.randint(1, 4) * 0.1
 
     def update(self):
-        self.y -= 7 - self.r
+        self.orig_radius -= self.burn_rate
+        self.y -= 6
+        self.y += self.r
         self.x += random.randint(-self.r, self.r)
-        self.original_r -= self.burn_rate
-        self.r = int(self.original_r)
+        self.r = int(self.orig_radius)
         if self.r <= 0:
             self.r = 1
 
     def draw(self):
-        max_surf_size = 2 * self.r * self.alpha_layers * self.alpha_layers * self.alpha_glow
-        self.surf = pygame.Surface((max_surf_size, max_surf_size), pygame.SRCALPHA)
-        for i in range(self.alpha_layers, -1, -1):
-            alpha = 255 - i * (255 // self.alpha_layers - 5)
+        self.surface = pygame.Surface((2 * self.r * self.layers **2 * self.glow, 2 * self.r * self.layers **2 * self.glow), pygame.SRCALPHA)
+        for particle in range(self.layers, -1, -1):
+            radius = self.r * particle**2 * self.glow
+            alpha = 255 - particle * (255 // self.layers - 5)
             if alpha <= 0:
                 alpha = 0
-            radius = self.r * i * i * self.alpha_glow
-            if self.r == 4 or self.r == 3:
-                r, g, b = (255, 0, 0)
+            if self.r <= 4 and self.r > 2:
+                color = (255, 0, 0, alpha)
             elif self.r == 2:
-                r, g, b = (255, 150, 0)
+                color = (255, 160, 0, alpha)
             else:
-                r, g, b = (50, 50, 50)
-            # r, g, b = (0, 0, 255)  # uncomment this to make the flame blue
-            color = (r, g, b, alpha)
-            pygame.draw.circle(self.surf, color, (self.surf.get_width() // 2, self.surf.get_height() // 2), radius)
-        screen.blit(self.surf, self.surf.get_rect(center=(self.x, self.y)))
+                color = (75, 75, 75, alpha)
+            pygame.draw.circle(self.surface, color, (self.surface.get_width() // 2, self.surface.get_height() // 2), radius)
+        screen.blit(self.surface, self.surface.get_rect(center=(self.x, self.y)))
 
-class Flame:
-    def __init__(self, x=100, y=500):
+class Fire:
+    def __init__(self, x=100, y=500, intensity = 2, particles= []):
         self.x = x
         self.y = y
-        self.flame_intensity = 2
-        self.flame_particles = []
-        for i in range(self.flame_intensity * 25):
-            self.flame_particles.append(FlameParticle(self.x + random.randint(-5, 5), self.y, random.randint(1, 5)))
+        self.intensity = intensity
+        self.particles = particles
+        for i in range(self.intensity * 30):
+            new_particle = FireParticle(self.x + random.randint(-3, 3), self.y, random.randint(1, 5))
+            self.particles.append(new_particle)
 
-    def draw_flame(self):
-        for i in self.flame_particles:
-            if i.original_r <= 0:
-                self.flame_particles.remove(i)
-                self.flame_particles.append(FlameParticle(self.x + random.randint(-5, 5), self.y, random.randint(1, 5)))
-                del i
+    def draw(self):
+        for particle in self.particles:
+            if particle.orig_radius <= 0:
+                self.particles.remove(particle)
+                del particle
+                new_particle = FireParticle(self.x + random.randint(-3, 3), self.y, random.randint(1, 5))
+                self.particles.append(new_particle)
                 continue
-            i.update()
-            i.draw()
-flame = Flame()
-
+            particle.update()
+            particle.draw()
+fire = Fire()
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
@@ -166,8 +164,8 @@ if __name__ == "__main__":
             moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
             pygame.draw.circle(screen, (229, 228, 226), (100, 100), 75)
             pygame.draw.circle(screen, (192, 192, 192), (100, 100), 65)
-        flame.draw_flame()
+        fire.draw()
 
         particle1.emit()
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(30)
