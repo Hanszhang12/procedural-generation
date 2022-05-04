@@ -170,4 +170,4 @@ if __name__ == "__main__":
 
         particle1.emit()
         pygame.display.update()
-        clock.tick(120)
+        clock.tick(60)
