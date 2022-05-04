@@ -37,16 +37,13 @@ class LayerBGStar:
         self.particles = particle_copy
 
 class FireParticle:
-    layers = 2
-    glow_difference = 2
-
     def __init__(self, x=100, y=500, r=5):
         self.r = r
         self.orig_radius = r
         self.x = x
         self.y = y
-        self.layers = FireParticle.layers
-        self.glow = FireParticle.glow_difference
+        self.layers = 2
+        self.glow = 2
         self.surface = pygame.Surface((2 * self.r * self.layers ** 2 * self.glow, 2 * self.r * self.layers ** 2 * self.glow), pygame.SRCALPHA)
         self.burn_rate = random.randint(1, 4) * 0.1
 
