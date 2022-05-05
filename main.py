@@ -34,7 +34,7 @@ def main():
     # Randomness
     sunmoon = random.randint(0, 1)
     shape_x = random.randint(100, 900)
-    shape_y = random.randint(80, 160)
+    shape_y = random.randint(80, 120)
 
     # Seed simplex noise
     opensimplex.seed(1234)
