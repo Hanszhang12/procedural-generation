@@ -1,6 +1,7 @@
 import pygame
 import opensimplex
 from cfg import SCREEN_HEIGHT, SCREEN_WIDTH
+import sys, random, math
 
 
 class Mountain:

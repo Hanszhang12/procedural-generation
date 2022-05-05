@@ -8,7 +8,8 @@ import opensimplex
 import sys, random, math
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+def main():
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
 
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     mountain_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
     mountain = Mountain(mountain_base_color)
     mountain.draw(background)
-    
+
     # Draw hill
     hill_base_color = pygame.Color((0, 0, 0))
     hill_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     screen.blit(background, (0, 0))
 
     while True:
+
         clock.tick(30)
         screen.blit(background, (0, 0))
 
@@ -56,7 +58,8 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                main()
         # drawing sun
         if sunmoon == 1:
             sun_x = random.randint(5, 50)
@@ -72,3 +75,4 @@ if __name__ == "__main__":
         fire.draw()
         starfield.draw()
         pygame.display.update()
+main()
