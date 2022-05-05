@@ -8,7 +8,6 @@ import opensimplex
 import sys, random, math
 
 
-# if __name__ == "__main__":
 def main():
     pygame.init()
     screen = pygame.display.set_mode((960, 600))
@@ -34,9 +33,11 @@ def main():
 
     # Randomness
     sunmoon = random.randint(0, 1)
+    shape_x = random.randint(100, 900)
+    shape_y = random.randint(80, 160)
 
     # Seed simplex noise
-    opensimplex.seed(random.randint(0,2000))
+    opensimplex.seed(1234)
 
     # Draw fire
     fire = Fire(screen)
@@ -50,7 +51,6 @@ def main():
     screen.blit(background, (0, 0))
 
     while True:
-
         clock.tick(30)
         screen.blit(background, (0, 0))
 
@@ -63,15 +63,12 @@ def main():
                 main()
         # drawing sun
         if sunmoon == 1:
-            sun_x = random.randint(5, 50)
-            sun_y = random.randint(5, 10)
             for i in range(15):
-                pygame.draw.circle(screen, (255, 15 * i, 0), (100, 100), 75 - (5 * i))
+                pygame.draw.circle(screen, (255, 15 * i, 0), (shape_x, shape_y), 75 - (5 * i))
         # drawing moon
         else:
-            moon_x, moon_y, moon_r, blob_radius = 450, 200, 65, 5
-            pygame.draw.circle(screen, (229, 228, 226), (100, 100), 75)
-            pygame.draw.circle(screen, (192, 192, 192), (100, 100), 65)
+            pygame.draw.circle(screen, (229, 228, 226), (shape_x, shape_y), 75)
+            pygame.draw.circle(screen, (192, 192, 192), (shape_x, shape_y), 65)
 
         fire.draw()
         starfield.draw()
