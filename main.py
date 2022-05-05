@@ -2,7 +2,7 @@ from cfg import SCREEN_HEIGHT, SCREEN_WIDTH
 from background.hill import Hill
 from components.fire import Fire
 from components.star import StarField
-
+from background.mountain import Mountain
 import pygame
 import opensimplex
 import sys, random, math
@@ -17,11 +17,19 @@ if __name__ == "__main__":
     background = background.convert()
     background.fill((12, 20, 69))
 
+    #Draw mountain
+    mountain_base_color = pygame.Color((0, 0, 0))
+    mountain_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
+    mountain = Mountain(mountain_base_color)
+    mountain.draw(background)
+    
     # Draw hill
     hill_base_color = pygame.Color((0, 0, 0))
     hill_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
     hill = Hill(hill_base_color)
     hill.draw(background)
+
+
 
     # Randomness
     sunmoon = random.randint(0, 1)
