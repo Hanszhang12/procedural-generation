@@ -20,13 +20,13 @@ def main():
 
     #Draw mountain
     mountain_base_color = pygame.Color((0, 0, 0))
-    mountain_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
+    mountain_base_color.hsla = (random.randint(0, 360), 50, 50, 100)
     mountain = Mountain(mountain_base_color)
     mountain.draw(background)
 
     # Draw hill
     hill_base_color = pygame.Color((0, 0, 0))
-    hill_base_color.hsla = (random.randint(0, 361), 50, 50, 100)
+    hill_base_color.hsla = (random.randint(0, 360), 50, 50, 100)
     hill = Hill(hill_base_color)
     hill.draw(background)
 
@@ -36,7 +36,7 @@ def main():
     sunmoon = random.randint(0, 1)
 
     # Seed simplex noise
-    opensimplex.seed(1234)
+    opensimplex.seed(random.randint(0,2000))
 
     # Draw fire
     fire = Fire(screen)
