@@ -15,21 +15,24 @@ def main():
     # Create The Backgound
     background = pygame.Surface(screen.get_size())
     background = background.convert()
-    background.fill((12, 20, 69))
+    background_color = pygame.Color((0, 0, 0))
+    background_color.hsla = (random.randint(0, 360), 20, 10, 100)
+    background.fill(background_color)
 
-    #Draw mountain
+    # Draw mountain
+    mountain_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
     mountain_base_color = pygame.Color((0, 0, 0))
     mountain_base_color.hsla = (random.randint(0, 360), 50, 50, 100)
     mountain = Mountain(mountain_base_color)
-    mountain.draw(background)
+    mountain.draw(mountain_surface)
+    mountain_surface.set_alpha(45)
+    background.blit(mountain_surface, (0, 0))
 
     # Draw hill
     hill_base_color = pygame.Color((0, 0, 0))
     hill_base_color.hsla = (random.randint(0, 360), 50, 50, 100)
     hill = Hill(hill_base_color)
     hill.draw(background)
-
-
 
     # Randomness
     sunmoon = random.randint(0, 1)
@@ -40,7 +43,7 @@ def main():
     opensimplex.seed(1234)
 
     # Draw fire
-    fire = Fire(screen)
+    fire = Fire(screen, intensity=7)
 
     # Draw star field
     starfield = StarField(screen)
@@ -59,12 +62,14 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                opensimplex.seed(random.randint(0,2000))
+                opensimplex.seed(random.randint(0, 2000))
                 main()
         # drawing sun
         if sunmoon == 1:
             for i in range(15):
-                pygame.draw.circle(screen, (255, 15 * i, 0), (shape_x, shape_y), 75 - (5 * i))
+                pygame.draw.circle(
+                    screen, (255, 15 * i, 0), (shape_x, shape_y), 75 - (5 * i)
+                )
         # drawing moon
         else:
             pygame.draw.circle(screen, (229, 228, 226), (shape_x, shape_y), 75)
@@ -73,4 +78,6 @@ def main():
         fire.draw()
         starfield.draw()
         pygame.display.update()
+
+
 main()
